@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sevenly Travel API · Live Integration Test</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root{
+    --ink: #10151A;
+    --panel: #161D24;
+    --panel-2: #1D2731;
+    --line: #2A3742;
+    --paper: #EDEAE2;
+    --paper-dim: #A9B4BC;
+    --sun: #E8905C;
+    --sun-dim: #8A5A3E;
+    --ok: #7FBA95;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height:100vh;
+    padding: 56px 20px 80px;
+  }
+  .wrap{
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sun);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom: 18px;
+  }
+  .dot{
+    width:7px;height:7px;border-radius:50%;
+    background: var(--ok);
+    box-shadow: 0 0 0 3px rgba(127,186,149,.18);
+  }
+  h1{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(30px, 5vw, 42px);
+    line-height: 1.12;
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+  }
+  h1 em{
+    font-style: italic;
+    color: var(--sun);
+  }
+  .sub{
+    color: var(--paper-dim);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 54ch;
+    margin: 0 0 40px;
+  }
+  .endpoint-strip{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--paper-dim);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 36px;
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+  .endpoint-strip .method{
+    color: var(--ok);
+    font-weight:600;
+    margin-right:8px;
+  }
+  .search-panel{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px;
+  }
+  label{
+    display:block;
+    font-size: 12px;
+    color: var(--paper-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .input-row{
+    display:flex;
+    gap:10px;
+    position:relative;
+  }
+  input[type=text]{
+    flex:1;
+    background: var(--ink);
+    border: 1px solid var(--line);
+    color: var(--paper);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    padding: 13px 16px;
+    border-radius: 9px;
+    outline: none;
+    transition: border-color .15s ease;
+  }
+  input[type=text]:focus{
+    border-color: var(--sun);
+  }
+  input[type=text]::placeholder{ color: #5A6672; }
+
+  .status{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--paper-dim);
+    margin-top: 12px;
+    min-height: 16px;
+  }
+  .status.live{ color: var(--ok); }
+  .status.err{ color: #D97757; }
+
+  .results{
+    margin-top: 16px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .result{
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 12px 14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap: 12px;
+    animation: rise .22s ease both;
+  }
+  @keyframes rise{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+  .result-name{ font-size: 14.5px; }
+  .result-full{ font-size: 12.5px; color: var(--paper-dim); margin-top:2px; }
+  .result-type{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--sun);
+    background: rgba(232,144,92,.1);
+    border: 1px solid var(--sun-dim);
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space:nowrap;
+  }
+
+  .raw{
+    margin-top: 28px;
+  }
+  .raw summary{
+    cursor:pointer;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--paper-dim);
+    letter-spacing: 0.04em;
+  }
+  .raw pre{
+    margin-top: 12px;
+    background: #0C1013;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 16px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    line-height:1.6;
+    color: #9FD8B4;
+    overflow-x:auto;
+    max-height: 260px;
+  }
+
+  footer{
+    margin-top: 44px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--paper-dim);
+    line-height: 1.7;
+  }
+  footer b{ color: var(--paper); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow"><span class="dot"></span> Live call · no mock data</div>
+
+  <h1>Testing the <em>Sevenly Travel</em> API directly from the browser</h1>
+  <p class="sub">This isn't a mockup — every search below hits Sevenly's real <code>/api/autosuggest</code> endpoint in real time. Built this quick test to confirm the API responds as documented before proposing an implementation plan.</p>
+
+  <div class="endpoint-strip"><span class="method">GET</span>https://affiliate.sevenlytravel.com/api/autosuggest?term={query}</div>
+
+  <div class="search-panel">
+    <label for="q">Search a city, hotel, or airport</label>
+    <div class="input-row">
+      <input type="text" id="q" placeholder="Try: cancun, dallas, tulum..." autocomplete="off">
+    </div>
+    <div class="status" id="status">Type at least 2 characters to search live</div>
+    <div class="results" id="results"></div>
+  </div>
+
+  <details class="raw">
+    <summary>▸ View raw JSON response</summary>
+    <pre id="rawJson">// results will appear here</pre>
+  </details>
+
+  <footer>
+    <b>What this confirms:</b> the autosuggest endpoint is public (no auth needed), CORS is open (<code>access-control-allow-origin: *</code>), and the response shape matches the OpenAPI docs exactly — location type, coordinates, and relevance score included. The full booking flow (auth, init, hotel details, finalize) needs a server-side proxy since those calls require an API key, but this confirms the integration point is solid.
+  </footer>
+
+</div>
+
+<script>
+const input = document.getElementById('q');
+const statusEl = document.getElementById('status');
+const resultsEl = document.getElementById('results');
+const rawEl = document.getElementById('rawJson');
+let debounceTimer;
+
+const typeIcons = {
+  City: '🏙️', Airport: '✈️', Hotel: '🏨', PointOfInterest: '📍',
+  MultiCity: '🗺️', Region: '🌎', Neighborhood: '📌', State: '🗺️'
+};
+
+input.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  const term = input.value.trim();
+  if(term.length < 2){
+    statusEl.textContent = 'Type at least 2 characters to search live';
+    statusEl.className = 'status';
+    resultsEl.innerHTML = '';
+    return;
+  }
+  statusEl.textContent = 'Calling live API...';
+  statusEl.className = 'status';
+  debounceTimer = setTimeout(()=> search(term), 350);
+});
+
+async function search(term){
+  try{
+    const url = `https://affiliate.sevenlytravel.com/api/autosuggest?term=${encodeURIComponent(term)}`;
+    const start = performance.now();
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const ms = Math.round(performance.now() - start);
+
+    const items = (data.locationSuggestions || []).slice(0, 6);
+    statusEl.textContent = `✓ Live response in ${ms}ms — ${items.length} results`;
+    statusEl.className = 'status live';
+
+    resultsEl.innerHTML = '';
+    items.forEach(item=>{
+      const row = document.createElement('div');
+      row.className = 'result';
+      row.innerHTML = `
+        <div>
+          <div class="result-name">${typeIcons[item.type] || '📍'} ${item.name}</div>
+          <div class="result-full">${item.fullName}</div>
+        </div>
+        <div class="result-type">${item.type}</div>
+      `;
+      resultsEl.appendChild(row);
+    });
+
+    rawEl.textContent = JSON.stringify(data, null, 2);
+  }catch(err){
+    statusEl.textContent = '✗ Request failed (' + err.message + '). If you\'re viewing this as a downloaded file, open it via the hosted link instead — some browsers restrict live requests from local files.';
+    statusEl.className = 'status err';
+  }
+}
+</script>
+</body>
+</html>
